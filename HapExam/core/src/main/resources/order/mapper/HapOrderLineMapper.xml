@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ #{copyright}#
+  -->
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.core.order.mapper.HapOrderLineMapper">
+
+   <resultMap id="BaseResultMap" type="hbi.core.order.dto.HapOmOrderLines" extends="com.hand.hap.mapper.StdMapper.STD">
+        <result column="line_id" property="lineId" jdbcType="DECIMAL"/>
+         <result column="header_id" property="headerId" jdbcType="DECIMAL"/>
+        <result column="company_id" property="companyId" jdbcType="DECIMAL"/>
+         <result column="inventory_item_id" property="inventoryItemId" jdbcType="DECIMAL"/>
+         <result column="line_number" property="lineNumber" jdbcType="DECIMAL"/>
+        <result column="orderd_quantity" property="orderQuantity" jdbcType="DECIMAL"/>
+        <result column="unit_selling_price" property="unitSellingPrice" jdbcType="DECIMAL"/>
+        <result column="order_quantity_uom" property="orderQuantityUom" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="order_amount" property="amount" jdbcType="BIGINT"/>
+        <result column="item_description" property="itemDescription" jdbcType="VARCHAR"/>
+        <result column="item_uom" property="itemUom" jdbcType="VARCHAR"/>
+         <result column="ADDITION1" property="addition1" jdbcType="VARCHAR"/>
+         <result column="ADDITION2" property="addition2" jdbcType="VARCHAR"/>
+         <result column="ADDITION3" property="addition3" jdbcType="VARCHAR"/>
+         <result column="ADDITION4" property="addition4" jdbcType="VARCHAR"/>
+         <result column="ADDITION5" property="addition5" jdbcType="VARCHAR"/>
+    </resultMap> 
+    
+    <select id="getByLineId" parameterType="hbi.core.order.dto.HapOmOrderLines" resultMap="BaseResultMap">
+		SELECT 
+		    ol.line_id,
+		    ol.header_id,
+		    ol.company_id,
+		    ol.line_number,
+		    ol.orderd_quantity,
+		    ol.unit_selling_price,
+		    ol.order_quantity_uom,
+		    ol.description,
+		    ol.ADDITION1,
+		    ol.ADDITION2,
+		    ol.ADDITION3,
+		    ol.ADDITION4,
+		    ol.ADDITION5,
+		    (ol.orderd_quantity * ol.unit_selling_price) order_amount,
+		    it.inventory_item_id,
+		    it.item_description,
+		    it.item_uom,
+		    it.item_code
+		FROM
+		    hap_om_order_lines ol,
+		    hap_inv_inventory_items it
+		
+		<where>
+			and it.inventory_item_id = ol.inventory_item_id
+        	<if test="headerId != null">
+                AND ol.header_id = #{headerId,jdbcType=DECIMAL}
+            </if>
+
+        </where>
+    </select>
+     <update id="updateOrderLine" parameterType="hbi.core.order.dto.HapOmOrderLines" >
+    update hap_om_order_lines
+    <set >
+      <if test="inventoryItemId != null" >
+        inventory_item_id = #{inventoryItemId,jdbcType=DECIMAL},
+      </if>
+      <if test="orderQuantityUom != null" >
+        order_quantity_uom = #{orderQuantityUom,jdbcType=VARCHAR},
+      </if>
+      <if test="orderQuantity != null" >
+        orderd_quantity = #{orderQuantity,jdbcType=DECIMAL},
+      </if>
+       <if test="unitSellingPrice != null" >
+        unit_selling_price = #{unitSellingPrice,jdbcType=DECIMAL},
+      </if>
+       <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where line_number = #{lineNumber,jdbcType=DECIMAL}
+  </update>
+   <!--  <select id="selectByOrderHeader" parameterType="hbi.core.order.dto.HapOmOrderHeaders" resultMap="BaseResultMap">
+		select oh.header_id,oh.order_number,
+				oh.order_date,oh.order_status,
+				cu.customer_name,co.company_name,
+				it.INVENTORY_ITEM_ID,
+				(ol.ORDERD_QUANTITY * ol.UNIT_SELLING_PRICE) order_amount
+			from hap_om_order_headers oh,
+				hap_ar_customers cu,
+				hap_org_companys co,
+				hap_om_order_lines ol,
+				hap_inv_inventory_items it
+		<where>
+			and oh.company_id = co.company_id 
+			and oh.customer_id = cu.customer_id
+			and oh.header_id = ol.header_id
+			and ol.INVENTORY_ITEM_ID = it.INVENTORY_ITEM_ID
+        	<if test="companyId != null">
+                AND oh.company_id = #{companyId,jdbcType=DECIMAL}
+            </if>
+            <if test="customerId != null">
+                AND oh.customer_id = #{customerId,jdbcType=DECIMAL}
+            </if>
+            <if test="orderNumber != null">
+                AND order_number like #{orderNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="orderStatus != null">
+                AND order_status like #{orderStatus,jdbcType=VARCHAR}
+            </if>
+            <if test="orderDate != null">
+                AND order_date = #{orderDate,jdbcType=DATE}
+            </if>
+            <if test="inventoryItemId != null">
+                AND it.INVENTORY_ITEM_ID = #{inventoryItemId,jdbcType=DECIMAL}
+            </if>
+        </where>
+    </select>
+     <update id="updateOrderHeader" parameterType="hbi.core.order.dto.HapOmOrderHeaders" >
+    update hap_om_order_headers
+    <set >
+      <if test="orderNumber != null" >
+        order_number = #{orderNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="companyId != null" >
+        company_id = #{companyId,jdbcType=DECIMAL},
+      </if>
+      <if test="orderDate != null" >
+        order_date = #{orderDate,jdbcType=DATE},
+      </if>
+       <if test="customerId != null" >
+        customer_id = #{customerId,jdbcType=DECIMAL},
+      </if>
+       <if test="orderStatus != null" >
+        order_status = #{orderStatus,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where header_id = #{headerId,jdbcType=DECIMAL}
+  </update> -->
+
+  <delete id="deleteLine" parameterType="hbi.core.order.dto.HapOmOrderLines" >
+    delete from hap_om_order_lines 
+    where header_id= #{headerId,jdbcType=DECIMAL}
+  </delete>  
+</mapper>

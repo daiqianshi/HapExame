@@ -1,0 +1,355 @@
+<#--
+ * description: Fruit.html
+ * version: 1.0 
+ * author:taotao.xu@hand-china.com
+ * #{copyright}#
+ * 
+-->
+<#include "../include/head.html">
+<body style="padding: 10px;">
+	<form id="orderGroupForm"></form>
+    <div id="orderGroupGrid" style="margin: 0; padding: 0"></div>
+    <script type="text/javascript">
+    $(function() {
+    	debugger;
+    	
+    	 window.editFruit = function (headerId) {
+             var url = 'order_edit_create.html';
+                 url = url + '?headerId=' + headerId;
+             window.popWin = $.ligerDialog.open({
+                 width : 1100,
+                 height: 700,
+                 url   : url
+             });
+         };
+         window.editFruit1 = function (headerId) {
+             var url = 'order_edit_create.html';
+                 url = url + '?isedit=1&headerId=' + headerId;
+             window.popWin = $.ligerDialog.open({
+                 width : 1100,
+                 height: 700,
+                 url   : url
+             });
+         };
+         
+        window['orderGroupForm'] = $("#orderGroupForm").ligerForm({
+            fields : [
+                      
+                //公司lov
+                {
+                display : '<@spring.message "order.groupQuery.companyName"/>',
+                name : "companyId1",//最终选中的值字段名
+                type : "popup",
+                newline : false,
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'companyId',//选中的valueField
+                    textField : 'companyName',//选中的textField
+                    grid : {
+                        columns : [{
+                            display : '<@spring.message "order.groupQuery.companyId"/>',
+                            name : 'companyId',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        },{
+                            display : '<@spring.message "order.groupQuery.companyName"/>',
+                            name : 'companyName',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        }],
+                        //数据查询的url
+                        url : '${base.contextPath}/order/groupQuary/companyQuery'
+                    },
+                    //lov上的查询条件
+                     condition : {
+                        inputWidth : 150,
+                        labelWidth : 70,
+                        fields : [ {
+                            display : '<@spring.message "order.groupQuery.companyId"/>',
+                            name : "companyId",
+                            newline : true,
+                            type : "text"
+                        }, {
+                            display : '<@spring.message "order.groupQuery.companyName"/>',
+                            name : "companyName",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                }
+
+            },
+            //客户lov，与上面的公司lov联动
+            {
+                display : '<@spring.message "order.groupQuery.customerName"/>',
+                name : "customerId",//最终选中的值字段名
+                type : "popup",
+                newline : false,
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'customerId',//选中的valueField
+                    textField : 'customerName',//选中的textField
+                    grid : {
+                        columns : [{
+                            display : '<@spring.message "order.groupQuery.customerId"/>',
+                            name : 'customerId',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        },{
+                            display : '<@spring.message "order.groupQuery.customerName"/>',
+                            name : 'customerName',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        }],
+                        //数据查询的url
+                        url : '${base.contextPath}/order/groupQuary/customerQuery'
+                    },
+                    //lov上的查询条件
+                     condition : {
+                        inputWidth : 150,
+                        labelWidth : 100,
+                        fields : [ {
+                            display : '<@spring.message "order.groupQuery.customerId"/>',
+                            name : "customerId",
+                            newline : true,
+                            type : "text"
+                        }, {
+                            display : '<@spring.message "order.groupQuery.customerName"/>',
+                            name : "customerName",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                    onLoadData: function() {
+                        //设置参数
+                        this.setParm('companyId', $.ligerui.get('companyId1').getValue());
+                        
+                   }  
+                }
+
+            },{
+                display: '<@spring.message "order.groupQuery.orderNumber"/>',
+                name: "orderNumber",
+                type: "text",
+                newline : false,
+                width: 120
+            },
+            //物料lov
+            {
+                display: '<@spring.message "order.groupQuery.inventoryItemId"/>',
+                name: "inventoryItemId",
+                type : "popup",
+                newline : true,
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'inventoryItemId',//选中的valueField
+                    textField : 'itemDescription',//选中的textField
+                    grid : {
+                        columns : [{
+                            display : '<@spring.message "order.groupQuery.inventoryItemId"/>',
+                            name : 'inventoryItemId',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        },{
+                            display : '<@spring.message "order.groupQuery.itemDescription"/>',
+                            name : 'itemDescription',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        }],
+                        //数据查询的url
+                        url : '${base.contextPath}/order/groupQuary/inventoryItemQuery'
+                    },
+                    //lov上的查询条件
+                     condition : {
+                        inputWidth : 150,
+                        labelWidth : 70,
+                        fields : [ {
+                            display : '<@spring.message "order.groupQuery.inventoryItemId"/>',
+                            name : "inventoryItemId",
+                            newline : true,
+                            type : "text"
+                        }, {
+                            display : '<@spring.message "order.groupQuery.itemCode"/>',
+                            name : "itemCode",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                }
+            },{
+                display: '<@spring.message "order.groupQuery.orderStatus"/>',
+                name: "orderStatus",
+                type: "select",
+                textField:"orderStatus",
+                options: {
+                    readonly: false,
+                    newline : false,
+                    valueField: 'orderStatus',
+                    textField: 'orderStatus',
+                   // url: '${base.contextPath}/ass/fruit/query',
+                    triggerToLoad: true,//注意
+
+                }
+            }],
+            buttons : [ {
+                text : '<@spring.message "hap.query"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                    Hap.gridQuery({
+                        form : orderGroupForm,
+                        grid : orderGroupGrid
+                    })
+                }
+            },{
+                text : '<@spring.message "sysfile.upload"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	var url = 'attachme_create.html';
+                    window.popWin = $.ligerDialog.open({
+                        width : 900,
+                        height: 550,
+                        url   : url
+                    });
+                }
+            },{
+                text : '<@spring.message "hap.view"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	var url = 'file_manage.html';
+                    window.popWin = $.ligerDialog.open({
+                        width : 900,
+                        height: 550,
+                        url   : url
+                    });
+                }
+            }]
+        });
+
+        window['orderGroupGrid'] = $("#orderGroupGrid").ligerGrid({
+            unSetValidateAttr : false,
+            columns : [{
+            	display : '<@spring.message "order.groupQuery.headerId"/>',
+                name: "headerId",
+                align : 'center',
+ 	            width : 120
+            },{
+                display : '<@spring.message "order.groupQuery.orderNumber"/>',
+                name : 'orderNumber',
+                align : 'center',
+                width : 120,
+                render : function(rowdata) {
+                    return '<a href="#" onclick="editFruit(' + rowdata.headerId + ')">' + rowdata.orderNumber +'</a>'
+                }
+            },{
+                display : '<@spring.message "order.groupQuery.companyName"/>',
+                name : 'companyName',
+                align : 'left',
+                width : 120
+
+            },{
+                display : '<@spring.message "order.groupQuery.customerName"/>',
+                name : 'customerName',
+                align : 'left',
+                width : 120
+            },{
+                display: '<@spring.message "order.groupQuery.orderDate"/>',
+                name   : 'orderDate',
+                align  : 'center',
+                width  : 120,
+                type:'date',
+	            format : "yyyy-MM-dd"
+            },{
+                display : '<@spring.message "order.groupQuery.orderStatus"/>',
+                name : 'orderStatus',
+                align : 'left',
+                width : 120
+            },{
+                display : '<@spring.message "order.groupQuery.orderAmount"/>',
+                name : 'amount',
+                align : 'left',
+                width : 120
+            }],
+            url : '${base.contextPath}/order/groupQuary/orderHeaderQuery',
+            toolbar : {
+                items : [ {
+                    text : '<@spring.message "hap.new"/>',
+                    disable : false,
+                    click : function() {
+                    	alert('ssdadasa');
+                    	editFruit1(-1);
+                    },
+                    icon : 'add'
+                }, {
+                    line : true
+                }, {
+                    text : '<@spring.message "hap.delete"/>',
+                     click : function() {
+                         Hap.gridDelete({
+                            grid : fruitGrid,
+                            url : '${base.contextPath}/demo/fruit/delete'
+                        }) 
+                    	/* fruitGrid.deleteSelectedRow(); */
+                    },
+                    icon : 'delete'
+                }, {
+                    line : true
+                }, {
+                    text : '<@spring.message "hap.save"/>',
+                    click : function() {
+                        Hap.gridSave({
+                            grid : fruitGrid,
+                            url : '${base.contextPath}/ass/fruit/submit'
+                        })
+                    },
+                    icon : 'save'
+                } ]
+            },
+            width : '99%',
+            height : '98%',
+            checkbox : true
+
+        });
+    });
+    
+    </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<#-- 
+ * description: 修改水果页面
+ * version: 1.0 
+ * author:Clerifen Li
+ * #{copyright}#
+ * 
+-->
+<#include "../include/head.html">
+<body style="padding: 15px">
+	<div id="orderHeadGrid" name="orderHeadGrid" ></div>
+	<div id="job_cron_tabs" class="liger-tab">
+    <div tabid="orderLinesTab1" title="主要" lselected="true">
+        <div id="orderLinesGrid1" name="orderLinesGrid1"></div>
+    </div>
+    <div tabid="orderLinesTab2" title="其他" showclose="true">
+        <div id="orderLinesGrid2" name="orderLinesGrid2"></div>
+    </div>
+</div>
+	<script src="${base.contextPath}/common/code?priorityLevelData=SYS.PRIORITY_LEVEL" type="text/javascript"></script>
+	<script type="text/javascript">
+	$(function(){
+		 var tab = $('#job_cron_tabs').ligerTab({
+        	height:'80%',
+            changeHeightOnResize:true
+        });
+		
+		var orderHeadGrid = window['orderHeadGrid'] = $("#orderHeadGrid").ligerGrid({
+	            unSetValidateAttr : false,
+	            columns : [{
+	            	display : '<@spring.message "order.groupQuery.headerId"/>',
+	                name: "headerId",
+	                type: "text",
+	                align : 'center',
+	 	            width : 120
+	            },{
+	                display : '<@spring.message "order.groupQuery.orderNumber"/>',
+	                name : 'orderNumber',
+	                align : 'center',
+	                width : 120,
+	                editor : {
+	                    type : 'text'
+	                }, 
+	                validate: {
+	                    required: true
+	                }
+
+	            },{
+	            	display : '<@spring.message "order.groupQuery.companyName"/>',
+	                name : "companyId",//最终选中的值字段名
+	                width : 120,
+	                //很重要，否则无法显示选中的描述
+	               textField : 'companyName',
+	                editor : {
+	                    type : 'popup',
+	                    valueField : 'companyId',//选中的valueField
+	                    textField : 'companyName',//选中的textField
+	                    grid : {
+	                        columns : [{
+	                            display : '<@spring.message "order.groupQuery.companyId"/>',
+	                            name : 'companyId',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        },{
+	                            display : '<@spring.message "order.groupQuery.companyName"/>',
+	                            name : 'companyName',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        }],
+	                        url : '${base.contextPath}/order/groupQuary/companyQuery'
+	                    },
+	                    //lov上的查询条件
+	                    condition : {
+	                    	inputWidth : 150,
+	                        labelWidth : 70,
+	                        fields : [ {
+	                            display : '<@spring.message "order.groupQuery.companyId"/>',
+	                            name : "companyId",
+	                            newline : true,
+	                            type : "text"
+	                        }, {
+	                            display : '<@spring.message "order.groupQuery.companyName"/>',
+	                            name : "companyName",
+	                            newline : false,
+	                            type : "text"
+	                        } ]
+	                    }
+	                },
+	                validate: {
+	                    required: true
+	                }
+	            },{
+	            	 display : '<@spring.message "order.groupQuery.customerName"/>',
+	                 name : "customerId",//最终选中的值字段名
+	                width : 120,
+	                //很重要，否则无法显示选中的描述
+	               textField : 'customerName',
+	                editor : {
+	                    type : 'popup',
+	                    valueField : 'customerId',//选中的valueField
+	                    textField : 'customerName',//选中的textField
+	                    grid : {
+	                        columns : [{
+	                            display : '<@spring.message "order.groupQuery.customerId"/>',
+	                            name : 'customerId',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        },{
+	                            display : '<@spring.message "order.groupQuery.customerName"/>',
+	                            name : 'customerName',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        }],
+	                        url : '${base.contextPath}/order/groupQuary/customerQuery'
+	                    },
+	                    //lov上的查询条件
+	                    condition : {
+	                    	inputWidth : 150,
+	                        labelWidth : 70,
+	                        fields : [ {
+	                            display : '<@spring.message "order.groupQuery.customerId"/>',
+	                            name : "customerId",
+	                            newline : true,
+	                            type : "text"
+	                        }, {
+	                            display : '<@spring.message "order.groupQuery.customerName"/>',
+	                            name : "customerName",
+	                            newline : false,
+	                            type : "text"
+	                        } ]
+	                    },
+	                    staticOptions : function(e){
+	                        //设置参数
+	                        e.column.editor.parms = {
+	                        		//alert(e.record.customerId);
+	                        		companyId : e.record.companyId
+	                        }
+	                    }
+	                },
+	                validate: {
+	                    required: true
+	                }
+	            },{
+	                display: '<@spring.message "order.groupQuery.orderDate"/>',
+	                name   : 'orderDate',
+	                align  : 'center',
+	                width  : 120,
+	                type:'date',
+		            format : "yyyy-MM-dd",
+		            editor : {
+		                 type : 'date'
+		            }, 
+		            validate: {
+		                required: true
+		            }
+	            },{
+	                display : '<@spring.message "order.groupQuery.orderStatus"/>',
+	                name : 'orderStatus',
+	                align : 'left',
+	                width : 120,
+	            },{
+	                display : '<@spring.message "order.groupQuery.orderAmount"/>',
+	                name : 'amount',
+	                align : 'left',
+	                width : 120
+	            }],
+
+	            url : '${base.contextPath}/order/edit/orderHeaderQuery?headerId=' + ${RequestParameters.headerId},
+	            toolbar : {
+	                items : [ {
+	                    text : '<@spring.message "hap.new"/>',
+	                    disable : false,
+	                    click : function() {
+	                        fruitGrid.addRow({})
+	                    },
+	                    icon : 'add'
+	                }, {
+	                    line : true
+	                },{
+	                    text : '<@spring.message "hap.save"/>',
+	                    click : function() {
+	                        Hap.gridSave({
+	                            grid : orderHeadGrid,
+	                            url : '${base.contextPath}/order/orderEdit/update'
+	                        })
+	                    },
+	                    icon : 'save'
+	                } ]
+	            },
+	            enabledEdit : true,
+	            width : '99%',
+	            height : '30%',
+	            checkbox : false,
+	            onSelectRow: function (data, rowindex, rowobj)
+	            {
+	                $.ligerDialog.alert('选择的是:' + data.headerId);
+	                //$.ligerDialog.alert('选择的是:' + rowobj.departmentName);
+	                //传数据给员工grid
+	               queryOrderLine(data.headerId);
+	            }
+	        });
+		function queryOrderLine(headerId){
+			var orderLinesGrid1 = window['orderLinesGrid1'] = $("#orderLinesGrid1").ligerGrid({
+				unSetValidateAttr: false,
+				 columns : [],
+				 url : '${base.contextPath}/order/edit/orderHeaderQuery?headerId=' + headerId,
+				 toolbar : {
+		                items : [ {
+		                    text : '<@spring.message "hap.new"/>',
+		                    disable : false,
+		                    click : function() {
+		                        fruitGrid.addRow({})
+		                    },
+		                    icon : 'add'
+		                }, {
+		                    line : true
+		                },{
+		                    text : '<@spring.message "hap.save"/>',
+		                    click : function() {
+		                        Hap.gridSave({
+		                            grid : orderHeadGrid,
+		                            url : '${base.contextPath}/order/orderEdit/update'
+		                        })
+		                    },
+		                    icon : 'save'
+		                } ]
+		            },
+		            enabledEdit : true,
+		            width : '99%',
+		            height : '80%',
+		            checkbox : false
+			})
+		}
+	});
+    </script>
+</body>
+</html>

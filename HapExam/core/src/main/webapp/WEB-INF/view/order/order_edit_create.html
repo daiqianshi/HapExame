@@ -1,0 +1,581 @@
+<#-- 
+ * description: 修改订单页面
+ * version: 1.0 
+ * author:Clerifen Li
+ * #{copyright}#
+ * 
+-->
+<#include "../include/head.html">
+<body style="padding: 15px">
+	<script src="${base.contextPath}/common/code?priorityLevelData=SYS.PRIORITY_LEVEL" type="text/javascript"></script>
+	<form id="mainForm" method="post" enctype="application/json;charset=UTF-8"></form>
+	<div id="job_cron_tabs" class="liger-tab">
+    	<div tabid="orderLinesTab1" title="主要" lselected="true">
+        	<div id="orderLinesGrid1" name="orderLinesGrid1"></div>
+    	</div>
+    	<div tabid="orderLinesTab2" title="其他" showclose="true">
+        	<div id="orderLinesGrid2" name="orderLinesGrid2"></div>
+   		 </div>
+	</div>
+	<script type="text/javascript">
+	  <#assign isedit = (RequestParameters.isedit!'0')/>
+	  var tab = $('#job_cron_tabs').ligerTab({
+      	height:'90%',
+          changeHeightOnResize:true
+      });
+	  //保存提交
+      function editHead() {
+          Hap.submitForm({
+              form: dataForm,
+              wrapArray: false,
+              <#if isedit == '1'>
+          	  url: '${base.contextPath}/order/edite/createHeader',
+          	  <#else>
+          		url: '${base.contextPath}/order/edite/headerUpdate',
+          	  </#if>
+              success:function(json, opt){
+                  $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                      parent.orderGroupGrid.reload();
+                      cancelDialog();
+                  });
+              }
+          });
+    /*       Hap.gridSave({
+              grid : orderLinesGrid1,
+              <#if isedit == '1'>
+          	  url: '${base.contextPath}/order/edite/createLines',
+          	  <#else>
+          		url: '${base.contextPath}/order/edite/linesUpdate',
+          	  </#if>
+		  success:function(json, opt){
+              $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                  parent.orderGroupGrid.reload();
+                  cancelDialog();
+              });
+          }
+		  }) */
+      }
+	  
+	  function editLine(){
+		  Hap.gridSave({
+              grid : orderLinesGrid1,
+              <#if isedit == '1'>
+          	  url: '${base.contextPath}/order/edite/createLines',
+          	  <#else>
+          		url: '${base.contextPath}/order/edite/linesUpdate?headerId=' + ${RequestParameters.headerId},
+          	  </#if>
+		  success:function(json, opt){
+              $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                  parent.orderGroupGrid.reload();
+                  cancelDialog();
+              });
+          }
+		  })
+	  }
+	  //取消
+      function cancelDialog() {
+          var dialog = frameElement.dialog;
+          dialog.close();
+      }
+      //表单底部按钮 
+      Hap.setFormDefaultBtn(cancelDialog, editHead);
+	  //-------------------------------------------------------------
+      
+        //表单
+        var mainForm = $("#mainForm");
+        var dataForm  = mainForm.ligerForm({
+            inputWidth: 480,
+            fields: [{
+                name : 'headerId',
+                type:'hidden'
+            },{
+                display : '<@spring.message "order.groupQuery.orderNumber"/>',
+                name : 'orderNumber',
+                align : 'center',
+                width : 120,
+                newline : false,
+                validate: {
+                    required: true
+                }
+            },{
+                display : '<@spring.message "order.groupQuery.companyName"/>',
+                name : "companyId",//最终选中的值字段名
+                type : "popup",
+                width : 200,
+                newline : false,
+                valueField : 'companyId',
+                textField : 'companyName',
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'companyId',//选中的valueField
+                    textField : 'companyName',//选中的textField
+                    grid : {
+                        columns : [{
+                            display : '<@spring.message "order.groupQuery.companyId"/>',
+                            name : 'companyId',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        },{
+                            display : '<@spring.message "order.groupQuery.companyName"/>',
+                            name : 'companyName',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        }],
+                        //数据查询的url
+                        url : '${base.contextPath}/order/groupQuary/companyQuery'
+                    },
+                    //lov上的查询条件
+                     condition : {
+                        inputWidth : 150,
+                        labelWidth : 70,
+                        fields : [ /* {
+                            display : '<@spring.message "order.groupQuery.companyId"/>',
+                            name : "companyId",
+                            newline : true,
+                            type : "text"
+                        },  */{
+                            display : '<@spring.message "order.groupQuery.companyName"/>',
+                            name : "companyName",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                },
+                validate: {
+                    required: true
+                }
+
+            },{
+                display : '<@spring.message "order.groupQuery.orderStatus"/>',
+                name : 'orderStatus',
+                align : 'left',
+                typy:'text',
+                newline : false,
+                readonly:true,
+                width : 120,
+            },{
+                display: '<@spring.message "order.groupQuery.orderDate"/>',
+                name   : 'orderDate',
+                align  : 'center',
+                width  : 120,
+                type:'date',
+	            format : "yyyy-MM-dd",
+	            validate: {
+	                  required: true
+	            }
+            },{
+                display : '<@spring.message "order.groupQuery.customerName"/>',
+                name : "customerId",//最终选中的值字段名
+                type : "popup",
+                width : 200,
+                newline : false,
+                valueField : 'customerId',
+                textField : 'customerName',
+                options:{
+                    readonly:false,//是否可编辑
+                    valueField : 'customerId',//选中的valueField
+                    textField : 'customerName',//选中的textField
+                    grid : {
+                        columns : [{
+                            display : '<@spring.message "order.groupQuery.customerId"/>',
+                            name : 'customerId',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        },{
+                            display : '<@spring.message "order.groupQuery.customerName"/>',
+                            name : 'customerName',
+                            align : 'left',
+                            width : 120,
+                            editor : {
+                                type : 'text' 
+                            },
+                            validate: {
+                                required: true
+                            }
+                        }],
+                        //数据查询的url
+                        url : '${base.contextPath}/order/groupQuary/customerQuery'
+                    },
+                    //lov上的查询条件
+                     condition : {
+                        inputWidth : 150,
+                        labelWidth : 100,
+                        fields : [ {
+                            display : '<@spring.message "order.groupQuery.customerId"/>',
+                            name : "customerId",
+                            newline : true,
+                            type : "text"
+                        }, {
+                            display : '<@spring.message "order.groupQuery.customerName"/>',
+                            name : "customerName",
+                            newline : false,
+                            type : "text"
+                        } ]
+                    },
+                    onLoadData: function() {
+                        //设置参数
+                        alert($.ligerui.get('companyId').getValue());
+                        this.setParm('companyId', $.ligerui.get('companyId').getValue());
+                        
+                   }  
+                },
+                validate: {
+                    required: true
+                }
+
+            },{
+                display : '<@spring.message "order.groupQuery.orderAmount"/>',
+                name : 'amount',
+                align : 'left',
+                newline : false,
+                type:'text',
+                readonly:true,
+               // disabled:true,
+               
+                width : 120
+            }],
+            buttons : [ {
+                text : '<@spring.message "hap.save"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	editHead();
+                   /*  Hap.gridQuery({
+                        form : orderGroupForm,
+                        grid : orderGroupGrid
+                    }) */
+                }
+            },{
+                text : '<@spring.message "hap.submit"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	Hap.submitForm({
+                        form: dataForm,
+                        wrapArray: false,
+                    	  url: '${base.contextPath}/order/edite/setStatus?orderStatus1=已提交',
+                        success:function(json, opt){
+                            $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                           	 Hap.loadForm({form: dataForm, url:'${base.contextPath}/order/edit/orderHeaderQuery?',para:{headerId:${RequestParameters.headerId}}});
+                           	 parent.orderGroupGrid.reload();
+                            });
+                        }
+                    });
+                }
+            },{
+                text : '<@spring.message "order.create.approval"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	Hap.submitForm({
+                        form: dataForm,
+                        wrapArray: false,
+                    	  url: '${base.contextPath}/order/edite/setStatus?orderStatus1=已审批',
+                        success:function(json, opt){
+                            $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                           	 Hap.loadForm({form: dataForm, url:'${base.contextPath}/order/edit/orderHeaderQuery?',para:{headerId:${RequestParameters.headerId}}});
+                           	 parent.orderGroupGrid.reload();
+                            });
+                        }
+                    });
+                }
+            }
+            ,{
+                text : '<@spring.message "order.create.refuse"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	 Hap.submitForm({
+                         form: dataForm,
+                         wrapArray: false,
+                     	  url: '${base.contextPath}/order/edite/setStatus?orderStatus1=已拒绝',
+                         success:function(json, opt){
+                             $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                            	 Hap.loadForm({form: dataForm, url:'${base.contextPath}/order/edit/orderHeaderQuery?',para:{headerId:${RequestParameters.headerId}}});
+                            	 parent.orderGroupGrid.reload();
+                             });
+                         }
+                     });
+                }
+            },{
+                text : '<@spring.message "order.create.deleteAll"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	 Hap.submitForm({
+                         form: dataForm,
+                         wrapArray: false,
+                     	  url: '${base.contextPath}/order/edite/deleteOrder',
+                         success:function(json, opt){
+                             $.ligerDialog.success('<@spring.message "hap.tip.success"/>', '<@spring.message "hap.tip.info"/>', function(){
+                                 parent.orderGroupGrid.reload();
+                                 cancelDialog();
+                             });
+                         }
+                     });
+                }
+            },{
+                text : '<@spring.message "order.create.documentsPrint"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	var url = 'file_manage.html';
+                    window.popWin = $.ligerDialog.open({
+                        width : 900,
+                        height: 550,
+                        url   : url
+                    });
+                }
+            },{
+                text : '<@spring.message "order.create.back"/>',
+                disabled : false,
+                width : 60,
+                click : function() {
+                	  cancelDialog();
+                }
+            }]
+        });
+    //<#if isedit == '0'>
+    //alert(isedit);
+    Hap.loadForm({form: dataForm, url:'${base.contextPath}/order/edit/orderHeaderQuery?',para:{headerId:${RequestParameters.headerId}}});
+    //</#if>
+   //var queryOrderLine = function queryOrderLine(headerId){
+		var orderLinesGrid1 = window['orderLinesGrid1'] = $("#orderLinesGrid1").ligerGrid({
+			unSetValidateAttr: false,
+			 columns : [{
+                 display : '<@spring.message "order.groupQuery.lineNumber"/>',
+                 name : 'lineNumber',
+                 align : 'left',
+                 width : 120
+             },{
+				    display : '<@spring.message "order.groupQuery.inventoryItemId"/>',
+				    name : 'inventoryItemId',
+				    width : 220,
+				    //很重要，否则无法显示选中的描述
+				     valueField : 'inventoryItemId',
+				    textField:'itemCode',
+				    editor : {
+				        type : 'popup',
+				        valueField : 'inventoryItemId',//lov的valueField
+				        textField : 'itemCode',//lov的textField
+				        grid : {
+				            columns : [{
+	                            display : '<@spring.message "order.groupQuery.inventoryItemId"/>',
+	                            name : 'inventoryItemId',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        },{
+	                            display : '<@spring.message "order.groupQuery.itemCode"/>',
+	                            name : 'itemCode',
+	                            align : 'left',
+	                            width : 120,
+	                            editor : {
+	                                type : 'text' 
+	                            },
+	                            validate: {
+	                                required: true
+	                            }
+	                        }],
+				            url : '${base.contextPath}/order/groupQuary/inventoryItemQuery'
+				        },
+				        //lov上的查询条件
+				        condition : {
+				            inputWidth : 150,
+				            labelWidth : 70,
+				            fields : [ {
+	                            display : '<@spring.message "order.groupQuery.inventoryItemId"/>',
+	                            name : "inventoryItemId",
+	                            newline : true,
+	                            type : "text"
+	                        }, {
+	                            display : '<@spring.message "order.groupQuery.itemCode"/>',
+	                            name : "itemCode",
+	                            newline : false,
+	                            type : "text"
+	                        } ]
+				        }
+				    },
+				    validate: {
+                        required: true
+                    }
+				},{
+                    display : '<@spring.message "order.groupQuery.itemDescription"/>',
+                    name : 'itemDescription',
+                    align : 'left',
+                    width : 120
+                },{
+                    display : '<@spring.message "order.groupQuery.orderQuantityUom"/>',
+                    name : 'orderQuantityUom',
+                    align : 'left',
+                    width : 120
+                }
+                ,{
+                    display : '<@spring.message "order.groupQuery.orderQuantity"/>',
+                    name : 'orderQuantity',
+                    align : 'left',
+                    width : 120,
+                    
+                    editor : {
+                        type : 'digits',
+                        sign:false
+                    },
+                    validate: {
+                        required: true
+                    }
+                },{
+                    display : '<@spring.message "order.groupQuery.unitSellingPrice"/>',
+                    name : 'unitSellingPrice',
+                    align : 'left',
+                    width : 120,
+                    editor : {
+                        type : 'float',
+                        	sign:false
+                    },
+                    validate: {
+                        required: true
+                    }
+                },{
+                    display : '<@spring.message "order.groupQuery.amount"/>',
+                    name : 'amount',
+                    align : 'left',
+                    type:'float',
+                    width : 120
+                },{
+                    display : '<@spring.message "order.groupQuery.description"/>',
+                    name : 'description',
+                    align : 'left',
+                    width : 120,
+                    editor : {
+                        type : 'text' 
+                    },
+                    validate: {
+                        required: true
+                    }
+                },{
+                    display : '<@spring.message "order.groupQuery.companyName"/>',
+                    name : "companyId",//最终选中的值字段名
+                    type:'text',
+                    width : 120
+                }],
+             
+			 url : '${base.contextPath}/order/edit/orderLinesQuery?headerId=' + ${RequestParameters.headerId},
+			 toolbar : {
+	                items : [ {
+	                    text : '<@spring.message "hap.new"/>',
+	                    disable : false,
+	                    click : function() {
+	                    	orderLinesGrid1.addRow({})
+	                    },
+	                    icon : 'add'
+	                }, {
+	                    line : true
+	                },{
+	                    text : '<@spring.message "hap.save"/>',
+	                    click : function() {
+	                    	editLine();
+	                       /*  Hap.gridSave({
+	                            grid : orderHeadGrid,
+	                            url : '${base.contextPath}/order/orderEdit/update'
+	                        }) */
+	                    },
+	                    icon : 'save'
+	                } ]
+	            },
+	            enabledEdit : true,
+	            width : '99%',
+	            height : '80%',
+	            checkbox : false
+		});
+		
+		var orderLinesGrid2 = window['orderLinesGrid2'] = $("#orderLinesGrid2").ligerGrid({
+			unSetValidateAttr: false,
+			 columns : [{
+                display : '<@spring.message "order.groupQuery.lineNumber"/>',
+                name : 'lineNumber',
+                align : 'left',
+                width : 120
+            },{
+                display : '<@spring.message "order.groupQuery.attachmentInformation1"/>',
+                name : 'addition1',
+                align : 'left',
+                width : 120
+            },{
+                display : '<@spring.message "order.groupQuery.attachmentInformation2"/>',
+                name : 'addition1',
+                align : 'left',
+                width : 120
+            },{
+                display : '<@spring.message "order.groupQuery.attachmentInformation3"/>',
+                name : 'addition1',
+                align : 'left',
+                width : 120
+            }
+            ,{
+                display : '<@spring.message "order.groupQuery.attachmentInformation4"/>',
+                name : 'addition1',
+                align : 'left',
+                width : 120
+            }
+            ,{
+                display : '<@spring.message "order.groupQuery.attachmentInformation5"/>',
+                name : 'addition1',
+                align : 'left',
+                width : 120
+            }],
+            
+			 url : '${base.contextPath}/order/edit/orderLinesQuery?headerId=' + ${RequestParameters.headerId},
+			 toolbar : {
+	                items : [ {
+	                    text : '<@spring.message "hap.new"/>',
+	                    disable : false,
+	                    click : function() {
+	                        fruitGrid.addRow({})
+	                    },
+	                    icon : 'add'
+	                }, {
+	                    line : true
+	                },{
+	                    text : '<@spring.message "hap.save"/>',
+	                    click : function() {
+	                        Hap.gridSave({
+	                            grid : orderLinesGrid1,
+	                            url : '${base.contextPath}/order/orderEdit/update'
+	                        })
+	                    },
+	                    icon : 'save'
+	                } ]
+	            },
+	            enabledEdit : true,
+	            width : '99%',
+	            height : '80%',
+	            checkbox : false
+		});
+	//}
+    </script>
+   
+</body>
+</html>
